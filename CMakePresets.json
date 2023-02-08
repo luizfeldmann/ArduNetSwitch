@@ -1,0 +1,30 @@
+﻿{
+  "version": 2,
+  "configurePresets": [
+    {
+      "name": "default",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+          "CMAKE_TOOLCHAIN_FILE": {
+            "type": "FILEPATH",
+            "value": "dependencies/Arduino-CMake-Toolchain/Arduino-toolchain.cmake"
+          },
+          "ARDUINO_INSTALL_PATH": {
+            "type": "PATH",
+            "value": "dependencies/arduino-1.8.18"
+          },
+          "ARDUINO_BOARD": "Arduino Uno [avr.uno]"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ArduNetSwitch",
+      "configurePreset": "default",
+      "environment": {
+        "SERIAL_PORT": "COM1"
+      }
+    }
+  ]
+}
