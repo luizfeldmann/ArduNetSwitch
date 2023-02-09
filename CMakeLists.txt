@@ -13,3 +13,5 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 target_link_arduino_libraries(${CMAKE_PROJECT_NAME} PRIVATE core)
 
 target_enable_arduino_upload(${CMAKE_PROJECT_NAME})
+
+include("resources/GenerateKeys.cmake")
