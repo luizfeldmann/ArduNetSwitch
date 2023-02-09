@@ -47,5 +47,29 @@ add_custom_command(
   VERBATIM
 )
 
+# Generate object file containing the public key
+set(PUBLIC_OBJ "${CMAKE_CURRENT_LIST_DIR}/publickey.o")
+
+SET_SOURCE_FILES_PROPERTIES(${PUBLIC_OBJ}
+  PROPERTIES
+  GENERATED TRUE
+  EXTERNAL_OBJECT TRUE)
+
+add_custom_command(
+    OUTPUT ${PUBLIC_OBJ}
+    DEPENDS ${PUBLIC_DER}
+    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
+    COMMAND "${CMAKE_OBJCOPY}" -I binary -O elf32-avr --rename-section .data=.rodata,alloc,load,readonly,data,contents "public.der" "${PUBLIC_OBJ}"
+    VERBATIM
+)
+
+add_library(LINK_PUBLIC_KEY STATIC "${PUBLIC_OBJ}")
+
+SET_TARGET_PROPERTIES(
+  LINK_PUBLIC_KEY
+  PROPERTIES
+  LINKER_LANGUAGE C 
+)
+
 # Custom target for key generation
-add_custom_target(GenerateKeys SOURCES "${PUBLIC_DER}" "${PRIVATE_DER}")
+add_custom_target(GenerateKeys SOURCES "${PUBLIC_DER}" "${PRIVATE_DER}" "${PUBLIC_OBJ}")

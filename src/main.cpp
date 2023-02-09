@@ -1,5 +1,8 @@
 #include "Arduino.h"
 
+extern const char* _binary_public_der_start;
+extern const char* _binary_public_der_end;
+
 void setup()
 {
 	pinMode(LED_BUILTIN, OUTPUT);
