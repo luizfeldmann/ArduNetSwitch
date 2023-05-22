@@ -1,3 +1,6 @@
 [submodule "dependencies/Arduino-CMake-Toolchain"]
 	path = dependencies/Arduino-CMake-Toolchain
 	url = https://github.com/a9183756-gh/Arduino-CMake-Toolchain
+[submodule "dependencies/Ethernet"]
+	path = dependencies/Ethernet
+	url = https://github.com/arduino-libraries/Ethernet
