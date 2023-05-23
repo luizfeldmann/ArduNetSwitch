@@ -8,6 +8,12 @@ add_subdirectory(dependencies)
 
 # Main program sources
 set(${CMAKE_PROJECT_NAME}_SOURCES
+    # Include
+    "include/mac.h"
+    "include/CHttpServer.h"
+    # Source
+    "src/mac.c"
+    "src/CHttpServer.cpp"
     "src/main.cpp")
 
 add_executable(${CMAKE_PROJECT_NAME} ${${CMAKE_PROJECT_NAME}_SOURCES})

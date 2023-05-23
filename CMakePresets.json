@@ -23,7 +23,7 @@
       "name": "ArduNetSwitch",
       "configurePreset": "default",
       "environment": {
-        "SERIAL_PORT": "COM1"
+        "SERIAL_PORT": "COM6"
       }
     }
   ]
