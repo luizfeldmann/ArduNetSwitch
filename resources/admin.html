@@ -1,0 +1,35 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>ArduNetSwitch - Admin</title>
+        <style>
+p {color: red;}
+body {
+    max-width: max-content;
+    max-height: max-content;
+    margin: auto;
+}
+        </style>
+    </head>
+    <body>
+        <h1>ArduNetSwitch</h1>
+        <h2>Administrator Panel</h2>
+        <hr/>
+        <form action="/change">
+            <p>Change the <b>administrator</b> credentials</p>
+            <label for="username">New Username:</label>
+            <input type="text" placeholder="%s" name="username" required>
+            <br/>
+            <label for="password">New Password:</label>
+            <input type="password" placeholder="%s" name="password" required>
+            <br/>
+            <input type="submit" value="Change" />
+        </form>
+        <hr/>
+        <form action="/switch">
+            <p>Control the Switch</p>
+            <input type="submit" value="Activate Switch" />
+        </form>
+        <hr/>
+    </body>
+</html>

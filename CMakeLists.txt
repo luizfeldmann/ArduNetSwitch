@@ -23,9 +23,13 @@ set(${CMAKE_PROJECT_NAME}_SOURCES
 add_executable(${CMAKE_PROJECT_NAME} ${${CMAKE_PROJECT_NAME}_SOURCES})
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}"
     "include")
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Ethernet)
+
+include("resources/LinkWebpages.cmake")
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE LINK_WEBPAGES)
 
 target_link_arduino_libraries(${CMAKE_PROJECT_NAME} PRIVATE core)
 
