@@ -34,7 +34,7 @@ static bool InitDHCP()
     // Log the obtained IP
     Serial.write("IP: ");
     Ethernet.localIP().printTo(Serial);
-    Serial.write("\r\n");
+    Serial.println();
 
     return true;
 }
@@ -66,7 +66,7 @@ void loop()
         // Log connection
         Serial.print("New client: ");
         ethClient.remoteIP().printTo(Serial);
-        Serial.write("\r\n");
+        Serial.println();
 
         // Create server
         CHttpServer httpServer(ethClient);
@@ -81,6 +81,6 @@ void loop()
 
         ethClient.stop();
 
-        Serial.print("Client disconnected \r\n");
+        Serial.println("Client disconnected");
     }
 }
