@@ -70,16 +70,7 @@ void loop()
 
         // Create server
         CHttpServer httpServer(ethClient);
-
-        while (ethClient.connected())
-        {
-            bool bContinue = httpServer.Loop();
-
-            if (!bContinue)
-                break;
-        }
-
-        ethClient.stop();
+        httpServer.Run();
 
         Serial.println("Client disconnected");
     }

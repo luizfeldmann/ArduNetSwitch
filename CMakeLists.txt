@@ -12,13 +12,17 @@ set(${CMAKE_PROJECT_NAME}_SOURCES
     "include/mac.h"
     "include/CBuffer.h"
     "include/CStringView.h"
+    "include/HttpConstants.h"
+    "include/CHttpResponse.h"
     "include/CHttpServer.h"
     # Source
     "src/mac.c"
     "src/CBuffer.cpp"
     "src/CStringView.cpp"
+    "src/HttpConstants.c"
     "src/CHttpServer.cpp"
-    "src/main.cpp")
+    "src/CHttpResponse.cpp"
+    "src/main.cpp" )
 
 add_executable(${CMAKE_PROJECT_NAME} ${${CMAKE_PROJECT_NAME}_SOURCES})
 

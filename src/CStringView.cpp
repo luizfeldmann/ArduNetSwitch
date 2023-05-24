@@ -1,5 +1,12 @@
 #include "CStringView.h"
 
+CStringView::CStringView()
+    : m_pStart(nullptr)
+    , m_uSize(0)
+{
+
+}
+
 CStringView::CStringView(const char* pFirst, size_t uSize)
     : m_pStart(pFirst)
     , m_uSize(uSize)

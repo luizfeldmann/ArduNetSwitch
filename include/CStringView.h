@@ -13,7 +13,7 @@ private:
     //! Number of bytes
     const size_t m_uSize;
 public:
-
+    CStringView();
     CStringView(const char* pFirst, size_t uSize);
     CStringView(const char* pFirst, const char* pEnd);
 
