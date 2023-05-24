@@ -24,8 +24,8 @@ for input in input_files:
     outf.write('// Auto-generated from {}\n'.format(input))
 
     input_escaped = input.replace(".", "_")
-    outf.write('extern const char* _binary_{}_start;\n'.format(input_escaped))
-    outf.write('extern const char* _binary_{}_end;\n'.format(input_escaped))
+    outf.write('extern const char _binary_{}_start[];\n'.format(input_escaped))
+    outf.write('extern const char _binary_{}_end[];\n'.format(input_escaped))
     outf.write('\n')
 
 # Postamble

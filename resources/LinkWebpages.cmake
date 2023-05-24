@@ -27,12 +27,15 @@ endforeach()
 
 # Create header with the variables for the webpages
 SET(WEBPAGE_HEADER "${CMAKE_BINARY_DIR}/webpages.h")
+SET(HEADER_SCRIPT "make_header.py")
 
 add_custom_command(
 		OUTPUT ${WEBPAGE_HEADER}
-		DEPENDS "${WEBPAGE_OBJS}"
+		DEPENDS 
+			"${WEBPAGE_OBJS}"
+			"${CMAKE_CURRENT_LIST_DIR}/${HEADER_SCRIPT}"
 		WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-		COMMAND "py" "make_header.py" "${WEBPAGE_HEADER}" "${WEBPAGE_FILES}"
+		COMMAND "py" "${HEADER_SCRIPT}" "${WEBPAGE_HEADER}" "${WEBPAGE_FILES}"
 		VERBATIM)
 
 # Create library to link with files
