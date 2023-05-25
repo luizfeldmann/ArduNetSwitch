@@ -17,12 +17,42 @@ CHttpServer::CHttpServer(EthernetClient& ethCli)
 
 }
 
+/* static */ const char* CHttpServer::GetHostName()
+{
+    static char g_szHost[20] = {0};
+
+    union {
+	    uint8_t localip_bytes[4];
+	    uint32_t localip_raw;
+    };
+
+    localip_raw = Ethernet.localIP();
+
+    sprintf(g_szHost, "%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8,
+        localip_bytes[0], localip_bytes[1], localip_bytes[2], localip_bytes[3]);
+
+    return g_szHost;
+}
+
+
 void CHttpServer::EndOfRequest()
 {
+    const char* szContentType = nullptr;
+    const char* pResponseData = nullptr;
+    size_t uResponseSize = 0;
+    EHttpStatusCodes eStatus = EHttpStatusCodes::HTTP_NOTFOUND;
+
+    if (0 == strcmp(m_szTarget, "/") ||
+        0 == strcmp(m_szTarget, "/index.html"))
+    {
+        eStatus = EHttpStatusCodes::HTTP_OK;
+        szContentType = c_strHttpTypeHtml;
+        pResponseData = _binary_index_html_start;
+        uResponseSize = _binary_index_html_end - pResponseData;
+    }
+
     // Send response
-    const char* pWebpage = _binary_index_html_start;
-    const size_t uLen = _binary_index_html_end - _binary_index_html_start;
-    CHttpResponse::Send(m_ethCli, HTTP_OK, c_strHttpTypeHtml, pWebpage, uLen);
+    CHttpResponse::Send(m_ethCli, eStatus, GetHostName(), szContentType, pResponseData, uResponseSize);
 
     // Reset server state variables
     Reset();

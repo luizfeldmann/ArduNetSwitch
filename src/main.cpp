@@ -32,9 +32,8 @@ static bool InitDHCP()
     }
 
     // Log the obtained IP
-    Serial.write("IP: ");
-    Ethernet.localIP().printTo(Serial);
-    Serial.println();
+    Serial.write("Host: ");
+    Serial.println(CHttpServer::GetHostName());
 
     return true;
 }

@@ -9,6 +9,7 @@ class CHttpResponse
 {
 public:
     static void Send(Print& Out, enum EHttpStatusCodes eStatusCode,
+        const char* sHost, 
         const char* sContentType, const char* pContentStart, size_t uContentLength);
 };
 

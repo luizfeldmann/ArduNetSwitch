@@ -5,7 +5,7 @@ static const char c_szHSep[] = { ':', ' ' };
 
 /* static */
 void
-CHttpResponse::Send(Print& Out, enum EHttpStatusCodes eStatusCode, const char* sContentType, const char* pContentStart, size_t uContentLength)
+CHttpResponse::Send(Print& Out, enum EHttpStatusCodes eStatusCode, const char* sHost, const char* sContentType, const char* pContentStart, size_t uContentLength)
 {
     // Status line
     static const char szHttpVers[] = "HTTP/1.1 ";
@@ -19,6 +19,15 @@ CHttpResponse::Send(Print& Out, enum EHttpStatusCodes eStatusCode, const char* s
     Out.write(sReason);
     Out.write(c_szCRLF, sizeof(c_szCRLF));
 
+    // Host
+    if (sHost)
+    {
+        Out.write(c_strHttpHeaderHost);
+        Out.write(c_szHSep, sizeof(c_szHSep));
+        Out.write(sHost);
+        Out.write(c_szCRLF, sizeof(c_szCRLF));
+    }
+
     // Type
     if (sContentType)
     {
@@ -29,17 +38,14 @@ CHttpResponse::Send(Print& Out, enum EHttpStatusCodes eStatusCode, const char* s
     }
 
     // Length
-    if (uContentLength)
+    Out.write(c_strHttpHeaderContentLength);
+    Out.write(c_szHSep, sizeof(c_szHSep));
     {
-        Out.write(c_strHttpHeaderContentLength);
-        Out.write(c_szHSep, sizeof(c_szHSep));
-        {
-            char szLength[16];
-            utoa(uContentLength, szLength, 10);
-            Out.write(szLength);
-        }
-        Out.write(c_szCRLF, sizeof(c_szCRLF));
+        char szLength[16];
+        utoa(uContentLength, szLength, 10);
+        Out.write(szLength);
     }
+    Out.write(c_szCRLF, sizeof(c_szCRLF));
 
     // Final CRLF
     Out.write(c_szCRLF, sizeof(c_szCRLF));
@@ -49,4 +55,6 @@ CHttpResponse::Send(Print& Out, enum EHttpStatusCodes eStatusCode, const char* s
     {
         Out.write(pContentStart, uContentLength);
     }
+
+    Out.flush();
 }

@@ -49,6 +49,9 @@ private:
 public:
     CHttpServer(EthernetClient& ethCli);
 
+    //! Reads the hostname of the server
+    static const char* GetHostName();
+
     //! Returns after connection is handles
     void Run();
 };
