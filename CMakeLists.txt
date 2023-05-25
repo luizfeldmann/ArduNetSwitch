@@ -11,6 +11,7 @@ set(${CMAKE_PROJECT_NAME}_SOURCES
     # Include
     "include/mac.h"
     "include/CBuffer.h"
+    "include/stringview.h"
     "include/CStringView.h"
     "include/HttpConstants.h"
     "include/CHttpResponse.h"
@@ -18,6 +19,7 @@ set(${CMAKE_PROJECT_NAME}_SOURCES
     # Source
     "src/mac.c"
     "src/CBuffer.cpp"
+    "src/stringview.c"
     "src/CStringView.cpp"
     "src/HttpConstants.c"
     "src/CHttpServer.cpp"

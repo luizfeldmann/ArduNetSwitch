@@ -1,7 +1,7 @@
 #ifndef _CSTRINGVIEW_H_
 #define _CSTRINGVIEW_H_
 
-#include <stddef.h>
+#include "stringview.h"
 
 //! Describes a range for 'view' of a string stored in a larger buffer
 class CStringView
@@ -12,6 +12,7 @@ private:
 
     //! Number of bytes
     const size_t m_uSize;
+
 public:
     CStringView();
     CStringView(const char* pFirst, size_t uSize);
