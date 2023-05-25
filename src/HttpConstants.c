@@ -1,5 +1,9 @@
 #include "HttpConstants.h"
 
+/* General Constants */
+
+const char c_strHttpBasic[] = "Basic";
+
 /* Header Fields */
 
 const char c_strHttpHeaderHost[] = "Host";
@@ -7,6 +11,10 @@ const char c_strHttpHeaderHost[] = "Host";
 const char c_strHttpHeaderContentType[] = "Content-Type";
 
 const char c_strHttpHeaderContentLength[] = "Content-Length";
+
+const char c_strHttpHeaderWWWAuthenticate[] = "WWW-Authenticate";
+
+const char c_strHttpHeaderAuthorization[] = "Authorization";
 
 /* MIME Types */
 

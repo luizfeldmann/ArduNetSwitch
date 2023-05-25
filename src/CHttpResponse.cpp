@@ -1,59 +1,75 @@
 #include "CHttpResponse.h"
 
+/* Constants */
+
 static const char c_szCRLF[] = { '\r', '\n' };
 static const char c_szHSep[] = { ':', ' ' };
 
-/* static */
+/* Utils */
+
+static inline void WriteHeaderField(Print& Out, const char* sKey, const char* sValue)
+{
+    Out.write(sKey);
+    Out.write(c_szHSep, sizeof(c_szHSep));
+    Out.write(sValue);
+    Out.write(c_szCRLF, sizeof(c_szCRLF));
+}
+
+/* CHttpResponse */
+
+CHttpResponse::CHttpResponse()
+    : m_eStatusCode(EHttpStatusCodes::HTTP_NOTFOUND)
+    , m_sHost(nullptr)
+    , m_sAuthenticate(nullptr)
+    , m_sContentType(nullptr)
+    , m_pContentStart(nullptr)
+    , m_uContentLength(0)
+{
+
+}
+
 void
-CHttpResponse::Send(Print& Out, enum EHttpStatusCodes eStatusCode, const char* sHost, const char* sContentType, const char* pContentStart, size_t uContentLength)
+CHttpResponse::Send(Print& Out)
 {
     // Status line
     static const char szHttpVers[] = "HTTP/1.1 ";
     Out.write(szHttpVers);
     {
         char szStatusCode[8];
-        int nLenCode = snprintf(szStatusCode, sizeof(szStatusCode), "%" PRIu16 " ", eStatusCode);
+        int nLenCode = snprintf(szStatusCode, sizeof(szStatusCode), "%" PRIu16 " ", m_eStatusCode);
         Out.write(szStatusCode, nLenCode);
     }
-    const char* sReason = HttpReasonFromCode(eStatusCode);
+    const char* sReason = HttpReasonFromCode(m_eStatusCode);
     Out.write(sReason);
     Out.write(c_szCRLF, sizeof(c_szCRLF));
 
     // Host
-    if (sHost)
-    {
-        Out.write(c_strHttpHeaderHost);
-        Out.write(c_szHSep, sizeof(c_szHSep));
-        Out.write(sHost);
-        Out.write(c_szCRLF, sizeof(c_szCRLF));
-    }
+    if (m_sHost)
+        WriteHeaderField(Out, c_strHttpHeaderHost, m_sHost);
+
+    // Authenticate
+    if (m_sAuthenticate)
+         WriteHeaderField(Out, c_strHttpHeaderWWWAuthenticate, m_sAuthenticate);
 
     // Type
-    if (sContentType)
-    {
-        Out.write(c_strHttpHeaderContentType);
-        Out.write(c_szHSep, sizeof(c_szHSep));
-        Out.write(sContentType);
-        Out.write(c_szCRLF, sizeof(c_szCRLF));
-    }
+    if (m_sContentType)
+        WriteHeaderField(Out, c_strHttpHeaderContentType, m_sContentType);
 
     // Length
-    Out.write(c_strHttpHeaderContentLength);
-    Out.write(c_szHSep, sizeof(c_szHSep));
     {
         char szLength[16];
-        utoa(uContentLength, szLength, 10);
-        Out.write(szLength);
+        utoa(m_uContentLength, szLength, 10);
+
+        WriteHeaderField(Out, c_strHttpHeaderContentLength, szLength);
     }
-    Out.write(c_szCRLF, sizeof(c_szCRLF));
 
     // Final CRLF
     Out.write(c_szCRLF, sizeof(c_szCRLF));
 
     // Body
-    if (pContentStart && uContentLength)
+    if (m_pContentStart && m_uContentLength)
     {
-        Out.write(pContentStart, uContentLength);
+        Out.write(m_pContentStart, m_uContentLength);
     }
 
     Out.flush();

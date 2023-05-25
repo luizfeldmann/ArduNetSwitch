@@ -37,22 +37,35 @@ CHttpServer::CHttpServer(EthernetClient& ethCli)
 
 void CHttpServer::EndOfRequest()
 {
-    const char* szContentType = nullptr;
-    const char* pResponseData = nullptr;
-    size_t uResponseSize = 0;
-    EHttpStatusCodes eStatus = EHttpStatusCodes::HTTP_NOTFOUND;
+    CHttpResponse Response;
 
     if (0 == strcmp(m_szTarget, "/") ||
         0 == strcmp(m_szTarget, "/index.html"))
     {
-        eStatus = EHttpStatusCodes::HTTP_OK;
-        szContentType = c_strHttpTypeHtml;
-        pResponseData = _binary_index_html_start;
-        uResponseSize = _binary_index_html_end - pResponseData;
+        Response.m_eStatusCode = EHttpStatusCodes::HTTP_OK;
+        Response.m_sContentType = c_strHttpTypeHtml;
+        Response.m_pContentStart = _binary_index_html_start;
+        Response.m_uContentLength = _binary_index_html_end - Response.m_pContentStart;
     }
-
+    else if (0 == strcmp(m_szTarget, "/admin.html"))
+    {
+        if (1 /*TODO - CHECK AUTH*/)
+        {
+            Response.m_eStatusCode = EHttpStatusCodes::HTTP_UNAUTHORIZED;
+            Response.m_sAuthenticate = c_strHttpBasic;
+        }
+        else
+        {
+            Response.m_eStatusCode = EHttpStatusCodes::HTTP_OK;
+            Response.m_sContentType = c_strHttpTypeHtml;
+            Response.m_pContentStart = _binary_admin_html_start;
+            Response.m_uContentLength = _binary_admin_html_end - Response.m_pContentStart;
+        }
+    }
+    
     // Send response
-    CHttpResponse::Send(m_ethCli, eStatus, GetHostName(), szContentType, pResponseData, uResponseSize);
+    Response.m_sHost = GetHostName();
+    Response.Send(m_ethCli);
 
     // Reset server state variables
     Reset();
@@ -72,6 +85,33 @@ void CHttpServer::HandleBody(const char* pBody)
     // TODO
 }
 
+void CHttpServer::CheckAuthorization(const char* pUser, size_t uUserLen, const char* pPass, size_t uPassLen)
+{
+}
+
+void CHttpServer::ParseAuthorization(const char* pData, size_t uSize)
+{
+    const char* pFirst = pData;
+    const char* pEnd = pData + uSize;
+
+    // Read scheme
+    for (;;++pData)
+    {
+        if (pData >= pEnd)
+            return; // Unexpected EOL
+
+        if (*pData == ' ')
+            break;
+    }
+
+    if (!stringview_cmp(c_strHttpBasic, pFirst, pData - pFirst))
+        return; // Violation of Auth scheme
+
+    ++pData; // Consume the SP
+
+    // TODO decode base64
+}
+
 void CHttpServer::HandleField(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen)
 {
     if (stringview_cmp(c_strHttpHeaderContentType, pName, uNameLen))
@@ -83,6 +123,11 @@ void CHttpServer::HandleField(const char* pName, size_t uNameLen, const char* pV
     {
         // Handle Content-Length
         m_uContentLength = atoi(pValue);
+    }
+    else if (stringview_cmp(c_strHttpHeaderAuthorization, pName, uNameLen))
+    {
+        // Parse username and password
+        ParseAuthorization(pValue, uValueLen);
     }
     else
     {

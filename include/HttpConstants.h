@@ -16,6 +16,10 @@ enum EHttpStatusCodes
 
 const char* HttpReasonFromCode(enum EHttpStatusCodes);
 
+/* General Constants */
+
+extern const char c_strHttpBasic[];
+
 /* Reason Messages */
 
 //! 200 OK
@@ -40,6 +44,12 @@ extern const char c_strHttpHeaderContentType[];
 
 //! Content-Length
 extern const char c_strHttpHeaderContentLength[];
+
+//! WWW-Authenticate
+extern const char c_strHttpHeaderWWWAuthenticate[];
+
+//! Authorization
+extern const char c_strHttpHeaderAuthorization[];
 
 /* MIME Types */
 

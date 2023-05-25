@@ -39,6 +39,12 @@ private:
     //! Handles a header field
     void HandleField(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen);
 
+    //! Parses username and password
+    void ParseAuthorization(const char* pValue, size_t uValueLen);
+
+    //! Verifies the provided credentials are valid
+    void CheckAuthorization(const char* pUser, size_t uUserLen, const char* pPass, size_t uPassLen);
+
     //! Parses a single line of the HTTP request
     //! @return True if success
     bool ParseLine(const char* pData, const char* pEnd);
