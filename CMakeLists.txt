@@ -18,6 +18,7 @@ set(${CMAKE_PROJECT_NAME}_SOURCES
     "include/HttpConstants.h"
     "include/CHttpResponse.h"
     "include/CHttpServer.h"
+    "include/CAppServer.h"
     # Source
     "src/mac.c"
     "src/base64.c"
@@ -27,6 +28,7 @@ set(${CMAKE_PROJECT_NAME}_SOURCES
     "src/CStringView.cpp"
     "src/HttpConstants.c"
     "src/CHttpServer.cpp"
+    "src/CAppServer.cpp"
     "src/CHttpResponse.cpp"
     "src/main.cpp" )
 

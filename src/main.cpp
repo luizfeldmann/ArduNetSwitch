@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "mac.h"
 #include "persistent.h"
-#include "CHttpServer.h"
+#include "CAppServer.h"
 
 //! Connection state
 bool g_bConnected = false;
@@ -81,7 +81,7 @@ void loop()
         Serial.println();
 
         // Create server
-        CHttpServer httpServer(ethClient);
+        CAppServer httpServer(ethClient);
         httpServer.Run();
 
         Serial.println(F("Client disconnected"));

@@ -2,28 +2,42 @@
 #define _CHTTPSERVER_H_
 
 #include <Ethernet.h>
+#include "CHttpResponse.h"
 
 //! Handles HTTP transactions
 class CHttpServer
 {
+protected:
+    //! Request method is parsed
+    virtual void Method(const char* pMethod, size_t uLen) = 0;
+
+    //! Target URI is parsed
+    virtual void Target(const char* pTarget, size_t uLen) = 0;
+
+    //! Query parameters parsed
+    virtual void Query(const char* pQuery, size_t uLen) = 0;
+
+    //! Content type was parsed
+    virtual void ContentType(const char* pType, size_t uLen) = 0;
+
+    //! Handle the body
+    virtual void Body(const char* pBody, size_t uLen) = 0;
+
+    //! A header field was parsed
+    virtual void HandleField(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen);
+
+    //! Generates a response
+    virtual void GetResponse(CHttpResponse&) = 0;
+
+    //! Restore all state variables and prepare for next request
+    virtual void Reset();
+
 private:
     //! Connected client
     EthernetClient& m_ethCli;
 
-    //! Request method
-    char m_szMethod[8];
-
-    //! Target URI
-    char m_szTarget[16];
-
-    //! Query parameters
-    char m_szQuery[16];
-
     //! Total size of the body
     size_t m_uContentLength;
-
-    //! The type of data received
-    char m_szContentType[36];
 
     //! Parser state machine
     enum class State
@@ -32,31 +46,6 @@ private:
         Fields,
         Body,
     } m_eState;
-
-    //! Status of authentication
-    enum class Auth {
-        None,  //!< No auth was provided
-        Bad,   //!< Provided credentials are wrong
-        Good,  //!< Provided credentials are OK
-    } m_eAuth;
-
-    //! Reset state of parser
-    void Reset();
-
-    //! Handles posted form data
-    void HandleFormData(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen);
-
-    //! Handles the body content
-    void HandleBody(const char* pBody);
-
-    //! Handles a header field
-    void HandleField(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen);
-
-    //! Parses username and password
-    void ParseAuthorization(const char* pValue, size_t uValueLen);
-
-    //! Verifies the provided credentials are valid
-    void CheckAuthorization(const char* pUser, size_t uUserLen, const char* pPass, size_t uPassLen);
 
     //! Parses a single line of the HTTP request
     //! @return True if success
