@@ -30,6 +30,13 @@ private:
         Body,
     } m_eState;
 
+    //! Status of authentication
+    enum class Auth {
+        None,  //!< No auth was provided
+        Bad,   //!< Provided credentials are wrong
+        Good,  //!< Provided credentials are OK
+    } m_eAuth;
+
     //! Reset state of parser
     void Reset();
 

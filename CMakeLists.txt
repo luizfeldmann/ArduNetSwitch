@@ -10,6 +10,8 @@ add_subdirectory(dependencies)
 set(${CMAKE_PROJECT_NAME}_SOURCES
     # Include
     "include/mac.h"
+    "include/base64.h"
+    "include/persistent.h"
     "include/CBuffer.h"
     "include/stringview.h"
     "include/CStringView.h"
@@ -18,6 +20,8 @@ set(${CMAKE_PROJECT_NAME}_SOURCES
     "include/CHttpServer.h"
     # Source
     "src/mac.c"
+    "src/base64.c"
+    "src/persistent.c"
     "src/CBuffer.cpp"
     "src/stringview.c"
     "src/CStringView.cpp"

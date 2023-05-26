@@ -2,6 +2,8 @@
 #include "CHttpResponse.h"
 #include "webpages.h"
 #include "stringview.h"
+#include "base64.h"
+#include "persistent.h"
 #include <Arduino.h>
 
 /* CHttpServer */
@@ -9,6 +11,7 @@
 CHttpServer::CHttpServer(EthernetClient& ethCli)
     : m_ethCli(ethCli)
     , m_eState(State::StartLine)
+    , m_eAuth(Auth::None)
     , m_szMethod{0}
     , m_szTarget{0}
     , m_szQuery{0}
@@ -49,9 +52,14 @@ void CHttpServer::EndOfRequest()
     }
     else if (0 == strcmp(m_szTarget, "/admin.html"))
     {
-        if (1 /*TODO - CHECK AUTH*/)
+        if (Auth::None == m_eAuth)
         {
             Response.m_eStatusCode = EHttpStatusCodes::HTTP_UNAUTHORIZED;
+            Response.m_sAuthenticate = c_strHttpBasic;
+        }
+        else if (Auth::Bad == m_eAuth)
+        {
+            Response.m_eStatusCode = EHttpStatusCodes::HTTP_FORBIDDEN;
             Response.m_sAuthenticate = c_strHttpBasic;
         }
         else
@@ -61,6 +69,11 @@ void CHttpServer::EndOfRequest()
             Response.m_pContentStart = _binary_admin_html_start;
             Response.m_uContentLength = _binary_admin_html_end - Response.m_pContentStart;
         }
+    }
+    else
+    {
+        // Use defaults of class CHttpResponse
+        // which is HTTP_NOTFOUND
     }
     
     // Send response
@@ -74,6 +87,7 @@ void CHttpServer::EndOfRequest()
 void CHttpServer::Reset()
 {
     m_eState = State::StartLine;
+    m_eAuth = Auth::None;
     m_uContentLength = 0;
     memset(m_szMethod, 0, sizeof(m_szMethod));
     memset(m_szTarget, 0, sizeof(m_szTarget));
@@ -87,6 +101,9 @@ void CHttpServer::HandleBody(const char* pBody)
 
 void CHttpServer::CheckAuthorization(const char* pUser, size_t uUserLen, const char* pPass, size_t uPassLen)
 {
+    m_eAuth = (Persist_CheckUserName(pUser, uUserLen) && Persist_CheckPassword(pPass, uPassLen))
+        ? Auth::Good
+        : Auth::Bad;
 }
 
 void CHttpServer::ParseAuthorization(const char* pData, size_t uSize)
@@ -109,7 +126,28 @@ void CHttpServer::ParseAuthorization(const char* pData, size_t uSize)
 
     ++pData; // Consume the SP
 
-    // TODO decode base64
+    // Decode base64 digest
+    char arrDecodeBuf[32];
+    size_t uDecodeSize = sizeof(arrDecodeBuf);
+
+    if (base64_decode(pData, pEnd - pData, arrDecodeBuf, &uDecodeSize))
+        return; // Decode failed
+
+    // Parse 'user:pass' pair
+    pFirst = arrDecodeBuf;
+    pEnd = pFirst + uDecodeSize;
+    pData = arrDecodeBuf;
+    
+    for (;; ++pData)
+    {
+        if (pData >= pEnd)
+            return; // Unexpected EOL
+
+        if (*pData == ':')
+            break;
+    }
+
+    CheckAuthorization(pFirst, pData - pFirst, pData + 1, pEnd - pData - 1);
 }
 
 void CHttpServer::HandleField(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen)

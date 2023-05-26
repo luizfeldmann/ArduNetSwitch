@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "mac.h"
+#include "persistent.h"
 #include "CHttpServer.h"
 
 //! Connection state
@@ -17,22 +18,22 @@ static bool InitDHCP()
     // Attempt getting DHCP
     if (!Ethernet.begin(m_arrMacAddr, c_uTimeoutMs, c_uTimeoutMs))
     {
-        Serial.println("Failed to configure Ethernet using DHCP");
+        Serial.println(F("Failed to configure Ethernet using DHCP"));
 
         if (Ethernet.hardwareStatus() == EthernetNoHardware)
         {
-            Serial.println("Ethernet shield was not found.");
+            Serial.println(F("Ethernet shield was not found"));
         } 
         else if (Ethernet.linkStatus() == LinkOFF) 
         {
-            Serial.println("Ethernet cable is not connected.");
+            Serial.println(F("Ethernet cable is not connected"));
         }
 
         return false;
     }
 
     // Log the obtained IP
-    Serial.write("Host: ");
+    Serial.print(F("Host: "));
     Serial.println(CHttpServer::GetHostName());
 
     return true;
@@ -46,6 +47,18 @@ void setup()
 
     // User built-in LED for status
 	pinMode(LED_BUILTIN, OUTPUT);
+
+    // Factory reset pin
+    #define PIN_FACTORY_RST 0
+
+    pinMode(PIN_FACTORY_RST, INPUT);
+
+    if (0 /*digitalRead(PIN_FACTORY_RST)*/)
+    {
+        Persist_ResetDefaults();
+
+        Serial.println(F("Factory reset"));
+    }
 }
 
 //! Periodic loop
@@ -63,7 +76,7 @@ void loop()
     if (ethClient) 
     {
         // Log connection
-        Serial.print("New client: ");
+        Serial.print(F("New client: "));
         ethClient.remoteIP().printTo(Serial);
         Serial.println();
 
@@ -71,6 +84,6 @@ void loop()
         CHttpServer httpServer(ethClient);
         httpServer.Run();
 
-        Serial.println("Client disconnected");
+        Serial.println(F("Client disconnected"));
     }
 }
