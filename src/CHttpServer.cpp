@@ -61,6 +61,8 @@ void CHttpServer::EndOfRequest()
         {
             Response.m_eStatusCode = EHttpStatusCodes::HTTP_FORBIDDEN;
             Response.m_sAuthenticate = c_strHttpBasic;
+            Response.m_pContentStart = _binary_forbidden_html_start;
+            Response.m_uContentLength = _binary_forbidden_html_end - Response.m_pContentStart;
         }
         else
         {
@@ -72,8 +74,10 @@ void CHttpServer::EndOfRequest()
     }
     else
     {
-        // Use defaults of class CHttpResponse
-        // which is HTTP_NOTFOUND
+        Response.m_eStatusCode = EHttpStatusCodes::HTTP_NOTFOUND;
+        Response.m_sContentType = c_strHttpTypeHtml;
+        Response.m_pContentStart = _binary_notfound_html_start;
+        Response.m_uContentLength = _binary_notfound_html_end - Response.m_pContentStart;
     }
     
     // Send response
