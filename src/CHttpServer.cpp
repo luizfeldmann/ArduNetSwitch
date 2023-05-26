@@ -16,6 +16,7 @@ CHttpServer::CHttpServer(EthernetClient& ethCli)
     , m_szTarget{0}
     , m_szQuery{0}
     , m_uContentLength(0)
+    , m_szContentType{0}
 {
 
 }
@@ -96,11 +97,64 @@ void CHttpServer::Reset()
     memset(m_szMethod, 0, sizeof(m_szMethod));
     memset(m_szTarget, 0, sizeof(m_szTarget));
     memset(m_szQuery, 0, sizeof(m_szQuery));
+    memset(m_szContentType, 0, sizeof(m_szContentType));
+}
+
+void CHttpServer::HandleFormData(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen)
+{
+
 }
 
 void CHttpServer::HandleBody(const char* pBody)
 {
-    // TODO
+    if (0 == strcmp(m_szContentType, c_strHttpTypeWWWForm))
+    {
+        // Received form data: key=value(&...)
+        const char* const pEnd = pBody + m_uContentLength;
+
+        const char* pNameStart = pBody;
+        size_t pNameLen = 0;
+
+        const char* pValueStart = nullptr;
+        size_t pValueLen = 0;
+
+        for (;; ++pBody)
+        {
+            if (pBody >= pEnd)
+            {
+                if (!pNameLen || !pValueStart)
+                    return; // Unexpected EOF
+                
+                // End of form - handle last field
+                pValueLen = pBody - pValueStart;
+                HandleFormData(pNameStart, pNameLen, pValueStart, pValueLen);
+
+                break;
+            }
+
+            if (*pBody == '=')
+            {
+                pNameLen = pBody - pNameStart;
+                pValueStart = pBody + 1;
+            }
+            else if (*pBody == '&')
+            {
+                // End of value - handle it
+                pValueLen = pBody - pValueStart;
+                HandleFormData(pNameStart, pNameLen, pValueStart, pValueLen);
+
+                // Reset for next pair
+                pNameStart = pBody + 1;
+                pNameLen = 0;
+                pValueStart = nullptr;
+                pValueLen = 0;
+            }
+        }
+    }
+    else
+    {
+        // Unknown type of content
+    }
 }
 
 void CHttpServer::CheckAuthorization(const char* pUser, size_t uUserLen, const char* pPass, size_t uPassLen)
@@ -159,7 +213,7 @@ void CHttpServer::HandleField(const char* pName, size_t uNameLen, const char* pV
     if (stringview_cmp(c_strHttpHeaderContentType, pName, uNameLen))
     {
         // Handle Content-Type
-        // TODO
+        stringview_copy(m_szContentType, sizeof(m_szContentType), pValue, uValueLen);
     }
     else if (stringview_cmp(c_strHttpHeaderContentLength, pName, uNameLen))
     {

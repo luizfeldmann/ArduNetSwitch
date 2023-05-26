@@ -20,6 +20,8 @@ const char c_strHttpHeaderAuthorization[] = "Authorization";
 
 const char c_strHttpTypeHtml[] = "text/html";
 
+const char c_strHttpTypeWWWForm[] = "application/x-www-form-urlencoded";
+
 /* Reason Messages */
 
 const char c_strHttpReasonOK[] = "OK";

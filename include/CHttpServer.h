@@ -22,6 +22,9 @@ private:
     //! Total size of the body
     size_t m_uContentLength;
 
+    //! The type of data received
+    char m_szContentType[36];
+
     //! Parser state machine
     enum class State
     {
@@ -39,6 +42,9 @@ private:
 
     //! Reset state of parser
     void Reset();
+
+    //! Handles posted form data
+    void HandleFormData(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen);
 
     //! Handles the body content
     void HandleBody(const char* pBody);

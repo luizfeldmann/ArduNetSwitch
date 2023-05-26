@@ -56,6 +56,9 @@ extern const char c_strHttpHeaderAuthorization[];
 //! text/html
 extern const char c_strHttpTypeHtml[];
 
+//! application/x-www-form-urlencoded
+extern const char c_strHttpTypeWWWForm[];
+
 #ifdef __cplusplus
 }
 #endif
