@@ -15,6 +15,34 @@ static inline void WriteHeaderField(Print& Out, const char* sKey, const char* sV
     Out.write(c_szCRLF, sizeof(c_szCRLF));
 }
 
+static void SendBodyProgmem(Print& Out, const char* pData, size_t uLen)
+{
+    // Sanity check
+    if (!pData || !uLen)
+        return;
+
+    // Send the content in chunks
+    char szBodyBuf[64];
+
+    while (uLen)
+    {
+        // Limit chunk size to buffer size
+        size_t uSendLen = uLen;
+        if (uSendLen > sizeof(szBodyBuf))
+            uSendLen = sizeof(szBodyBuf);
+
+        // Copy PROGMEM to RAM
+        memcpy_P(szBodyBuf, pData, uSendLen);
+
+        // Send
+        Out.write(szBodyBuf, uSendLen);
+
+        // Track progress
+        uLen -= uSendLen;
+        pData += uSendLen;
+    }
+}
+
 /* CHttpResponse */
 
 CHttpResponse::CHttpResponse()
@@ -69,7 +97,7 @@ CHttpResponse::Send(Print& Out)
     // Body
     if (m_pContentStart && m_uContentLength)
     {
-        Out.write(m_pContentStart, m_uContentLength);
+        SendBodyProgmem(Out, m_pContentStart, m_uContentLength);
     }
 
     Out.flush();

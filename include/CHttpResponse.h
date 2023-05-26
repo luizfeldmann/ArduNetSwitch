@@ -21,7 +21,7 @@ public:
     const char* m_sContentType;
 
     //! Pointer to content
-    const char* m_pContentStart;
+    const char* m_pContentStart PROGMEM;
 
     //! Length of body
     size_t m_uContentLength;

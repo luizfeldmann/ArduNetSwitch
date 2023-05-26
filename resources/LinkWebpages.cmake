@@ -21,7 +21,7 @@ foreach(WEBPAGE IN LISTS WEBPAGE_FILES)
 		OUTPUT ${OBJ_FILE}
 		DEPENDS ${HTML_FILE}
 		WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-		COMMAND "${CMAKE_OBJCOPY}" -I binary -O elf32-avr --rename-section .data=.rodata,alloc,load,readonly,data,contents "${WEBPAGE}" "${OBJ_FILE}"
+		COMMAND "${CMAKE_OBJCOPY}" -I binary -O elf32-avr --rename-section .data=.progmem,alloc,load,readonly,data,contents "${WEBPAGE}" "${OBJ_FILE}"
 		VERBATIM)
 endforeach()
 
