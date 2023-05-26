@@ -17,6 +17,9 @@ public:
     //! Auth challenge
     const char* m_sAuthenticate;
 
+    //! Redirect location
+    const char* m_sLocation;
+
     //! Content type
     const char* m_sContentType;
 

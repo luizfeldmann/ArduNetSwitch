@@ -15,11 +15,10 @@ bool Persist_CheckUserName(const char* pData, unsigned char uLen);
 //! @return True if match
 bool Persist_CheckPassword(const char* pData, unsigned char uLen);
 
-//! Updates the stored user name
-void Persist_SetUserName(const char* pData, unsigned char uLen);
-
-//! Updates the stored password
-void Persist_SetPassword(const char* pData, unsigned char uLen);
+//! Updates the stored user name and password
+//! @param szUser Null-terminated string of new user name
+//! @param szPass Null-terminated string of new pass word
+bool Persist_SetUserNameAndPassword(const char* szUser, const char* szPass);
 
 //! Resets all values to default
 void Persist_ResetDefaults();

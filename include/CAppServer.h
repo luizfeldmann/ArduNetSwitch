@@ -12,6 +12,7 @@ private:
         None,  //!< No auth was provided
         Bad,   //!< Provided credentials are wrong
         Good,  //!< Provided credentials are OK
+        Refresh,    //!< The credentials are invalidated and must be refreshed
     } m_eAuth;
 
     //! Type of data provided in request body
@@ -25,7 +26,18 @@ private:
         NotFound,   //!< Target is not found
         Index,      //!< Landing page
         Admin,      //!< Admin panel page
+        Change,     //!< Change user credentials
+        Switch,     //!< (De)activate the switch
     } m_eTarget;
+
+    //! Contains the requested new credentials change
+    struct SCredChangeReq
+    {
+        char szUser[32];    //!< Requested new user
+        char szPass[32];    //!< Requested new pass
+
+        SCredChangeReq();
+    } m_stCredentialsChangeRequest;
 
     //! Handles posted form data
     void HandleFormData(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen);
@@ -35,6 +47,9 @@ private:
 
     //! Verifies the provided credentials are valid
     void CheckAuthorization(const char* pUser, size_t uUserLen, const char* pPass, size_t uPassLen);
+
+    //! Responds with 400
+    void BadRequest(CHttpResponse&);
 
     //! Generates response for secured pages after the authentication was successfully verified
     void GetResponseAuthenticated(CHttpResponse&);

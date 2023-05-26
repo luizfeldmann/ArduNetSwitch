@@ -9,6 +9,8 @@ extern "C" {
 enum EHttpStatusCodes
 {
     HTTP_OK             = 200,
+    HTTP_FOUND          = 302,
+    HTTP_BADREQUEST     = 400,
     HTTP_UNAUTHORIZED   = 401,
     HTTP_FORBIDDEN      = 403,
     HTTP_NOTFOUND       = 404,
@@ -24,6 +26,12 @@ extern const char c_strHttpBasic[];
 
 //! 200 OK
 extern const char c_strHttpReasonOK[];
+
+//! 302 Found
+extern const char c_strHttpReasonFound[];
+
+//! 400 Bad Request
+extern const char c_strHttpReasonBadRequest[];
 
 //! 401 Unauthorized
 extern const char c_strHttpReasonUnauthorized[];
@@ -50,6 +58,9 @@ extern const char c_strHttpHeaderWWWAuthenticate[];
 
 //! Authorization
 extern const char c_strHttpHeaderAuthorization[];
+
+//! Location
+extern const char c_strHttpHeaderLocation[];
 
 /* MIME Types */
 

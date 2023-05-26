@@ -16,6 +16,8 @@ const char c_strHttpHeaderWWWAuthenticate[] = "WWW-Authenticate";
 
 const char c_strHttpHeaderAuthorization[] = "Authorization";
 
+const char c_strHttpHeaderLocation[] = "Location";
+
 /* MIME Types */
 
 const char c_strHttpTypeHtml[] = "text/html";
@@ -25,6 +27,10 @@ const char c_strHttpTypeWWWForm[] = "application/x-www-form-urlencoded";
 /* Reason Messages */
 
 const char c_strHttpReasonOK[] = "OK";
+
+const char c_strHttpReasonFound[] = "Found";
+
+const char c_strHttpReasonBadRequest[] = "Bad Request";
 
 const char c_strHttpReasonUnauthorized[] = "Unauthorized";
 
@@ -41,6 +47,14 @@ const char* HttpReasonFromCode(enum EHttpStatusCodes eCode)
     {
     case HTTP_OK:
         sReason = c_strHttpReasonOK;
+        break;
+
+    case HTTP_FOUND:
+        sReason = c_strHttpReasonFound;
+        break;
+
+    case HTTP_BADREQUEST:
+        sReason = c_strHttpReasonBadRequest;
         break;
 
     case HTTP_UNAUTHORIZED:

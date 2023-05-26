@@ -49,6 +49,7 @@ CHttpResponse::CHttpResponse()
     : m_eStatusCode(EHttpStatusCodes::HTTP_NOTFOUND)
     , m_sHost(nullptr)
     , m_sAuthenticate(nullptr)
+    , m_sLocation(nullptr)
     , m_sContentType(nullptr)
     , m_pContentStart(nullptr)
     , m_uContentLength(0)
@@ -74,6 +75,9 @@ CHttpResponse::Send(Print& Out)
     // Host
     if (m_sHost)
         WriteHeaderField(Out, c_strHttpHeaderHost, m_sHost);
+
+    if (m_sLocation)
+        WriteHeaderField(Out, c_strHttpHeaderLocation, m_sLocation);
 
     // Authenticate
     if (m_sAuthenticate)

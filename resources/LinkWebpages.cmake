@@ -2,6 +2,7 @@
 
 # List of pages
 SET(WEBPAGE_FILES
+    "badrequest.html"
 	"notfound.html"
 	"forbidden.html"
 	"admin.html"

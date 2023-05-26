@@ -1,4 +1,5 @@
 #include "persistent.h"
+#include <string.h>
 #include <avr/eeprom.h>
 
 struct SCredentials
@@ -47,14 +48,31 @@ bool Persist_CheckPassword(const char* pData, unsigned char uLen)
     return eep_strcmp(eep_stCredentials.szPassword, pData, uLen);
 }
 
-void Persist_SetUserName(const char* pData, unsigned char uLen)
+bool Persist_SetUserNameAndPassword(const char* szUser, const char* szPass)
 {
-    
-}
+    // Validate user
+    unsigned char uLenUser = strlen(szUser);
 
-void Persist_SetPassword(const char* pData, unsigned char uLen)
-{
+    if (!uLenUser)
+        return false; // Empty
 
+    if (uLenUser + 1 >= sizeof(eep_stCredentials.szUserName))
+        return false; // Overflow
+
+    // Validate pass
+    unsigned char uLenPass = strlen(szPass);
+
+    if (!uLenPass)
+        return false; // Empty
+
+    if (uLenPass + 1 >= sizeof(eep_stCredentials.szPassword))
+        return false; // Overflow
+
+    // Save to EEP (include the '/0')
+    eeprom_update_block(szUser, eep_stCredentials.szUserName, uLenUser + 1);
+    eeprom_update_block(szPass, eep_stCredentials.szPassword, uLenPass + 1);
+
+    return true;
 }
 
 void Persist_ResetDefaults()
