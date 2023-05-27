@@ -26,9 +26,22 @@ body {
             <input type="submit" value="Change" />
         </form>
         <hr/>
-        <form action="/switch">
+        <form action="/initial" method="POST" enctype="application/x-www-form-urlencoded">
+            <p>Change the <b>power-up</b> (initial) state of this switch</p>
+            <input type="radio" name="initial" value="on">ON</input>
+            <input type="radio" name="initial" value="off">OFF</input>
+            <br/>
+            <input type="submit" value="Apply" />
+        </form>
+        <hr/>
+        <form action="/switch" method="GET">
             <p>Control the Switch</p>
-            <input type="submit" value="Activate Switch" />
+            <input type="radio" name="command" value="on">ON</input>
+            <input type="radio" name="command" value="off">OFF</input>
+            <input type="radio" name="command" value="toggle">Toggle</input>
+            <input type="radio" name="command" value="pulse">Pulse</input>
+            <br/>
+            <input type="submit" value="Apply" />
         </form>
         <hr/>
     </body>

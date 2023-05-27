@@ -42,18 +42,21 @@ static bool InitDHCP()
 //! Entry point of program
 void setup()
 {
+    // Global interrupts
+    sei();
+
     // Use serial for debug
     Serial.begin(9600);
 
-    // User built-in LED for status
-	pinMode(LED_BUILTIN, OUTPUT);
+    // Configure switch & set initial state
+    ConfigureSwitch();
 
     // Factory reset pin
-    #define PIN_FACTORY_RST 0
+    static constexpr unsigned char PIN_FACTORY_RST = 7;
 
     pinMode(PIN_FACTORY_RST, INPUT);
 
-    if (0 /*digitalRead(PIN_FACTORY_RST)*/)
+    if (digitalRead(PIN_FACTORY_RST))
     {
         Persist_ResetDefaults();
 

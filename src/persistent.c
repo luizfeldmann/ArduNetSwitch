@@ -2,13 +2,20 @@
 #include <string.h>
 #include <avr/eeprom.h>
 
+//! Contains the pair of user/pass require to manage this device
 struct SCredentials
 {
+    //! The stored user ID
     char szUserName[32];
+    //! The storeed password
     char szPassword[32];
 };
 
+//! Pointer in EEPROM of the persistent user credentials
 struct SCredentials EEMEM eep_stCredentials;
+
+//! Configuration regarding the initial state of the switch
+bool EEMEM eep_bInitialState;
 
 static bool eep_strcmp(const char* szEEP, const char* pData, unsigned char uDataLen)
 {
@@ -73,6 +80,16 @@ bool Persist_SetUserNameAndPassword(const char* szUser, const char* szPass)
     eeprom_update_block(szPass, eep_stCredentials.szPassword, uLenPass + 1);
 
     return true;
+}
+
+bool Persist_GetSwitchInitialState()
+{
+    return eeprom_read_byte(&eep_bInitialState);
+}
+
+void Persist_SetSwitchInitialState(bool b)
+{
+    eeprom_update_byte(&eep_bInitialState, b);
 }
 
 void Persist_ResetDefaults()

@@ -2,6 +2,7 @@
 #define _CAPPSERVER_H_
 
 #include "CHttpServer.h"
+#include "Switch.h"
 
 //! Application specific server
 class CAppServer : public CHttpServer
@@ -28,7 +29,11 @@ private:
         Admin,      //!< Admin panel page
         Change,     //!< Change user credentials
         Switch,     //!< (De)activate the switch
+        Initial,    //!< Re-configure the initial state on power-up
     } m_eTarget;
+
+    //! Requested command for the switch
+    ESwitchCommand m_eCommand;
 
     //! Contains the requested new credentials change
     struct SCredChangeReq

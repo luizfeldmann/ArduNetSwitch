@@ -20,6 +20,12 @@ bool Persist_CheckPassword(const char* pData, unsigned char uLen);
 //! @param szPass Null-terminated string of new pass word
 bool Persist_SetUserNameAndPassword(const char* szUser, const char* szPass);
 
+//! Reads the state of the switch when device is powered on
+bool Persist_GetSwitchInitialState();
+
+//! Writes to EEPROM the initial state of the switch
+void Persist_SetSwitchInitialState(bool);
+
 //! Resets all values to default
 void Persist_ResetDefaults();
 

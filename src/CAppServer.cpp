@@ -12,6 +12,7 @@ CAppServer::CAppServer(EthernetClient& ethCli)
     , m_eAuth(Auth::None)
     , m_eContentType(ContentType::None)
     , m_eTarget(Target::NotFound)
+    , m_eCommand(ESwitchCommand::None)
 {
 
 }
@@ -32,6 +33,7 @@ void CAppServer::Reset()
 
     m_eContentType = ContentType::None;
     m_eTarget = Target::NotFound;
+    m_eCommand = ESwitchCommand::None;
 }
 
 void CAppServer::Method(const char* pMethod, size_t uLen)
@@ -54,6 +56,10 @@ void CAppServer::Target(const char* pTarget, size_t uLen)
     {
         m_eTarget = Target::Change;
     }
+    else if (stringview_cmp("/initial", pTarget, uLen))
+    {
+        m_eTarget = Target::Initial;
+    }
     else if (stringview_cmp("/switch", pTarget, uLen))
     {
         m_eTarget = Target::Switch;
@@ -62,7 +68,47 @@ void CAppServer::Target(const char* pTarget, size_t uLen)
 
 void CAppServer::Query(const char* pQuery, size_t uLen)
 {
-    // Unused
+    // Received form data: key=value(&...)
+    const char* const pEnd = pQuery + uLen;
+
+    const char* pNameStart = pQuery;
+    size_t pNameLen = 0;
+
+    const char* pValueStart = nullptr;
+    size_t pValueLen = 0;
+
+    for (;; ++pQuery)
+    {
+        if (pQuery >= pEnd)
+        {
+            if (!pNameLen || !pValueStart)
+                return; // Unexpected EOF
+
+            // End of form - handle last field
+            pValueLen = pQuery - pValueStart;
+            HandleFormData(pNameStart, pNameLen, pValueStart, pValueLen);
+
+            break;
+        }
+
+        if (*pQuery == '=')
+        {
+            pNameLen = pQuery - pNameStart;
+            pValueStart = pQuery + 1;
+        }
+        else if (*pQuery == '&')
+        {
+            // End of value - handle it
+            pValueLen = pQuery - pValueStart;
+            HandleFormData(pNameStart, pNameLen, pValueStart, pValueLen);
+
+            // Reset for next pair
+            pNameStart = pQuery + 1;
+            pNameLen = 0;
+            pValueStart = nullptr;
+            pValueLen = 0;
+        }
+    }
 }
 
 void CAppServer::ContentType(const char* pType, size_t uLen)
@@ -143,47 +189,8 @@ void CAppServer::Body(const char* pBody, size_t uContentLength)
 {
     if (ContentType::WWWForm == m_eContentType)
     {
-        // Received form data: key=value(&...)
-        const char* const pEnd = pBody + uContentLength;
-
-        const char* pNameStart = pBody;
-        size_t pNameLen = 0;
-
-        const char* pValueStart = nullptr;
-        size_t pValueLen = 0;
-
-        for (;; ++pBody)
-        {
-            if (pBody >= pEnd)
-            {
-                if (!pNameLen || !pValueStart)
-                    return; // Unexpected EOF
-
-                // End of form - handle last field
-                pValueLen = pBody - pValueStart;
-                HandleFormData(pNameStart, pNameLen, pValueStart, pValueLen);
-
-                break;
-            }
-
-            if (*pBody == '=')
-            {
-                pNameLen = pBody - pNameStart;
-                pValueStart = pBody + 1;
-            }
-            else if (*pBody == '&')
-            {
-                // End of value - handle it
-                pValueLen = pBody - pValueStart;
-                HandleFormData(pNameStart, pNameLen, pValueStart, pValueLen);
-
-                // Reset for next pair
-                pNameStart = pBody + 1;
-                pNameLen = 0;
-                pValueStart = nullptr;
-                pValueLen = 0;
-            }
-        }
+        // Treat form the same as query
+        Query(pBody, uContentLength);
     }
     else
     {
@@ -193,21 +200,55 @@ void CAppServer::Body(const char* pBody, size_t uContentLength)
 
 void CAppServer::HandleFormData(const char* pName, size_t uNameLen, const char* pValue, size_t uValueLen)
 {
-    if (Target::Change != m_eTarget)
-        return; // Fields only relevant for credentials change
+    static const char c_szSwitchCmdOn[] = "on";
+    static const char c_szSwitchCmdOff[] = "off";
 
-    static const char c_szFormUser[] = "username";
-    static const char c_szFormPass[] = "password";
-
-    if (stringview_cmp(c_szFormUser, pName, uNameLen))
+    if (Target::Change == m_eTarget)
     {
-        stringview_copy(m_stCredentialsChangeRequest.szUser, sizeof(m_stCredentialsChangeRequest.szUser), 
-            pValue, uValueLen);
+        static const char c_szFormUser[] = "username";
+        static const char c_szFormPass[] = "password";
+
+        if (stringview_cmp(c_szFormUser, pName, uNameLen))
+        {
+            stringview_copy(m_stCredentialsChangeRequest.szUser, sizeof(m_stCredentialsChangeRequest.szUser),
+                pValue, uValueLen);
+        }
+        else if (stringview_cmp(c_szFormPass, pName, uNameLen))
+        {
+            stringview_copy(m_stCredentialsChangeRequest.szPass, sizeof(m_stCredentialsChangeRequest.szPass),
+                pValue, uValueLen);
+        }
     }
-    else if (stringview_cmp(c_szFormPass, pName, uNameLen))
+    else if (Target::Initial == m_eTarget)
     {
-        stringview_copy(m_stCredentialsChangeRequest.szPass, sizeof(m_stCredentialsChangeRequest.szPass), 
-            pValue, uValueLen);
+        static const char c_szInitialState[] = "initial";
+
+        if (stringview_cmp(c_szInitialState, pName, uNameLen))
+        {
+            if (stringview_cmp(c_szSwitchCmdOn, pValue, uValueLen))
+                m_eCommand = ESwitchCommand::On;
+            else if (stringview_cmp(c_szSwitchCmdOff, pValue, uValueLen))
+                m_eCommand = ESwitchCommand::Off;
+        }
+    }
+    else if (Target::Switch == m_eTarget)
+    {
+        static const char c_szSwitchCommand[] = "command";
+
+        static const char c_szSwitchCmdTog[] = "toggle";
+        static const char c_szSwitchCmdPls[] = "pulse";
+
+        if (stringview_cmp(c_szSwitchCommand, pName, uNameLen))
+        {
+            if (stringview_cmp(c_szSwitchCmdOn, pValue, uValueLen))
+                m_eCommand = ESwitchCommand::On;
+            else if (stringview_cmp(c_szSwitchCmdOff, pValue, uValueLen))
+                m_eCommand = ESwitchCommand::Off;
+            else if (stringview_cmp(c_szSwitchCmdTog, pValue, uValueLen))
+                m_eCommand = ESwitchCommand::Toggle;
+            else if (stringview_cmp(c_szSwitchCmdPls, pValue, uValueLen))
+                m_eCommand = ESwitchCommand::Pulse;
+        }
     }
 }
 
@@ -276,10 +317,40 @@ void CAppServer::GetResponseAuthenticated(CHttpResponse& Response)
             BadRequest(Response);
         }
     }
+    else if (Target::Initial == m_eTarget)
+    {
+        bool bOn;
+        if ((bOn = (ESwitchCommand::On == m_eCommand)) ||
+            ESwitchCommand::Off == m_eCommand)
+        {
+            // Apply the configuration regarding the initial state
+            Persist_SetSwitchInitialState(bOn);
+
+            // Go back to admin after command is executed
+            Response.m_eStatusCode = EHttpStatusCodes::HTTP_FOUND;
+            Response.m_sLocation = c_szAdminPageURL;
+        }
+        else
+        {
+            // Missing form data
+            BadRequest(Response);
+        }
+    }
     else if (Target::Switch == m_eTarget)
     {
-        // TODO
-        BadRequest(Response);
+        if (ESwitchCommand::None != m_eCommand)
+        {
+            OperateSwitch(m_eCommand);
+
+            // Go back to admin after command is executed
+            Response.m_eStatusCode = EHttpStatusCodes::HTTP_FOUND;
+            Response.m_sLocation = c_szAdminPageURL;
+        }
+        else
+        {
+            // Missing command from form/query
+            BadRequest(Response);
+        }
     }
 }
 
